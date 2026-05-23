@@ -1,0 +1,72 @@
+name: Manual Release Docker Image Prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to promote (e.g., "1.31.0"). Leave empty to use latest git tag.'
+        required: false
+        type: string
+
+jobs:
+  semantic_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Free disk space
+        run: |
+          docker system prune -af
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android
+
+      - name: Docker Login
+        run: docker login --username ${{ secrets.GHCR_USERNAME }} --password ${{ secrets.GHCR_TOKEN }} ghcr.io
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Determine version to promote
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+            echo "Using manually specified version: $VERSION"
+          else
+            VERSION=$(git describe --tags --abbrev=0)
+            VERSION=${VERSION#v}
+            echo "Using latest git tag: $VERSION"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "PRE_IMAGE=ghcr.io/web3-plurality/plurality-mcp-server-pre:$VERSION" >> $GITHUB_ENV
+          echo "PROD_IMAGE=ghcr.io/web3-plurality/plurality-mcp-server:$VERSION" >> $GITHUB_ENV
+
+      - name: Verify pre-release image exists
+        run: |
+          echo "Verifying pre-release image exists: ${{ env.PRE_IMAGE }}"
+          if ! docker manifest inspect ${{ env.PRE_IMAGE }} > /dev/null 2>&1; then
+            echo "ERROR: Pre-release image not found: ${{ env.PRE_IMAGE }}"
+            echo "Available tags can be viewed at: https://github.com/orgs/web3-plurality/packages/container/plurality-mcp-server-pre/versions"
+            exit 1
+          fi
+          echo "Pre-release image verified"
+
+      - name: Pull pre-release image
+        run: |
+          echo "Pulling pre-release image: ${{ env.PRE_IMAGE }}"
+          docker pull ${{ env.PRE_IMAGE }}
+
+      - name: Tag for production
+        run: |
+          echo "Tagging for production..."
+          docker tag ${{ env.PRE_IMAGE }} ${{ env.PROD_IMAGE }}
+          docker tag ${{ env.PRE_IMAGE }} ghcr.io/web3-plurality/plurality-mcp-server:latest
+          echo "Tagged as:"
+          echo "   - ${{ env.PROD_IMAGE }}"
+          echo "   - ghcr.io/web3-plurality/plurality-mcp-server:latest"
+
+      - name: Push production images
+        run: |
+          echo "Pushing production images..."
+          docker push ${{ env.PROD_IMAGE }}
+          docker push ghcr.io/web3-plurality/plurality-mcp-server:latest
+          echo "Production images pushed successfully!"

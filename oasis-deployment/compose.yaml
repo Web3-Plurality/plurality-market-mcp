@@ -1,0 +1,12 @@
+services:
+  #######
+  # MCP Server
+  #######
+  plurality-mcp-server-dev:
+    container_name: plurality-mcp-server-dev
+    image: ghcr.io/web3-plurality/plurality-mcp-server-pre:latest
+    environment:
+      HYDRA_ISSUER: https://${PLURALITY_DOMAIN}
+      MCP_RESOURCE_URL: https://${PLURALITY_DOMAIN}
+      BACKEND_API_URL: https://${PLURALITY_DOMAIN}/api
+    restart: always
