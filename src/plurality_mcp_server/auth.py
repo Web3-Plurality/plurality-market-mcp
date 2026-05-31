@@ -5,7 +5,6 @@ from plurality_mcp_server.config import (
     MCP_RESOURCE_URL,
     BACKEND_API_URL,
     current_token,
-    current_wallet_address,
 )
 
 # Plurality personal access tokens are the only accepted credential.
@@ -135,6 +134,5 @@ class PATAuthMiddleware:
 
         # Per-request context for tool functions
         current_token.set(token)
-        current_wallet_address.set(wallet_address)
 
         await self.app(scope, receive, send)

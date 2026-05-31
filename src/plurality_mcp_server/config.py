@@ -19,10 +19,8 @@ MCP_DEV_CORS_ORIGIN = os.getenv("MCP_DEV_CORS_ORIGIN", "")
 http_client = httpx.AsyncClient(timeout=30.0, limits=httpx.Limits(max_connections=20))
 
 # ── Per-request context (async-safe via contextvars) ──
-# Auth middleware sets these after PAT validation. Tool functions read
-# current_token to forward the PAT bearer to backend API calls. Wallet
-# address is the canonical identity post-rewrite — the backend resolves
-# bucket access from the wallet (via NFT ownership) so tools never need
-# to send a separate user_id.
+# Auth middleware sets this after PAT validation. Tool functions read
+# current_token to forward the PAT bearer to backend API calls. The backend
+# resolves bucket access from the token's owner wallet (via NFT ownership),
+# so tools don't need a separate identity context.
 current_token: contextvars.ContextVar[str] = contextvars.ContextVar('auth_token', default='')
-current_wallet_address: contextvars.ContextVar[str] = contextvars.ContextVar('wallet_address', default='')
