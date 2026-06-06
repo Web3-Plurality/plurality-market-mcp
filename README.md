@@ -96,12 +96,9 @@ uv run uvicorn main:mcp_server --host 0.0.0.0 --port 5051 --reload
 curl -X POST http://localhost:5051/
 ```
 
-To test with a real PAT, mint one in the marketplace UI's API tokens dialog, then:
+To test with a real PAT, mint one in the marketplace UI's API tokens dialog, then point any MCP-compatible client at `http://localhost:5051/` with `Authorization: Bearer plur_pat_…` — see the Client Integration section below.
 
-```bash
-curl http://localhost:5051/.well-known/oauth-protected-resource/mcp
-# (discovery is still served for MCP-spec clients that probe it)
-```
+> The MCP server itself does NOT serve the `.well-known/oauth-protected-resource/mcp` discovery document. Plurality is PAT-only, so MCP-spec clients that probe for OAuth discovery get a `WWW-Authenticate` header pointing at the backend (which IS where the discovery doc lives). For curl tests, hit the backend directly: `curl http://localhost:5001/.well-known/oauth-protected-resource/mcp`.
 
 ---
 
@@ -124,13 +121,13 @@ The response includes `token: "plur_pat_…"`. **Copy it once** — the backend 
 
 ### Scopes
 
-| Scope | Grants |
+| Scope | Grants (v1) |
 |---|---|
-| `mcp:tools` | All tools (read + write). Default if you don't specify. |
-| `mcp:tools:read` | Read-only — search/list/read tools, no save/create |
-| `mcp:tools:write` | Write — save/create tools |
+| `mcp:tools` | **All tools (read + write).** Default when you mint a PAT without specifying scopes. |
+| `mcp:tools:read` | Reserved for a future read-only split. **Currently grants nothing.** A PAT with only this scope is rejected with `403 insufficient_scope` on every endpoint. |
+| `mcp:tools:write` | Reserved for a future write-only split. **Currently grants nothing.** Same as above. |
 
-The MCP server rejects requests whose token lacks `mcp:tools`. The narrower scopes exist so users can mint least-privilege tokens for third-party agents, but the per-tool enforcement of read-vs-write is a planned hardening; for v1, any of the three grants everything.
+In v1, the backend's PAT-gated endpoints require literal `mcp:tools`. The narrower `:read` / `:write` slots exist in the schema so we can split enforcement later without a migration, but right now they are placeholders — **mint your PAT with `mcp:tools` (or with no scopes at all, which defaults to `mcp:tools`)**.
 
 ---
 
