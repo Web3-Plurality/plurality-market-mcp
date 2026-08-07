@@ -1,6 +1,6 @@
 [project]
 name = "plurality-mcp-server"
-version = "0.1.0"
+version = "1.0.0"
 description = "Plurality MCP Server — open-source, zero-secret memory search for AI clients"
 readme = "README.md"
 requires-python = ">=3.11"

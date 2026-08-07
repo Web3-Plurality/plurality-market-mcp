@@ -37,15 +37,15 @@ jobs:
             echo "Using latest git tag: $VERSION"
           fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "PRE_IMAGE=ghcr.io/web3-plurality/plurality-mcp-server-pre:$VERSION" >> $GITHUB_ENV
-          echo "PROD_IMAGE=ghcr.io/web3-plurality/plurality-mcp-server:$VERSION" >> $GITHUB_ENV
+          echo "PRE_IMAGE=ghcr.io/web3-plurality/plurality-market-mcp-pre:$VERSION" >> $GITHUB_ENV
+          echo "PROD_IMAGE=ghcr.io/web3-plurality/plurality-market-mcp:$VERSION" >> $GITHUB_ENV
 
       - name: Verify pre-release image exists
         run: |
           echo "Verifying pre-release image exists: ${{ env.PRE_IMAGE }}"
           if ! docker manifest inspect ${{ env.PRE_IMAGE }} > /dev/null 2>&1; then
             echo "ERROR: Pre-release image not found: ${{ env.PRE_IMAGE }}"
-            echo "Available tags can be viewed at: https://github.com/orgs/web3-plurality/packages/container/plurality-mcp-server-pre/versions"
+            echo "Available tags can be viewed at: https://github.com/orgs/web3-plurality/packages/container/plurality-market-mcp-pre/versions"
             exit 1
           fi
           echo "Pre-release image verified"
@@ -59,14 +59,14 @@ jobs:
         run: |
           echo "Tagging for production..."
           docker tag ${{ env.PRE_IMAGE }} ${{ env.PROD_IMAGE }}
-          docker tag ${{ env.PRE_IMAGE }} ghcr.io/web3-plurality/plurality-mcp-server:latest
+          docker tag ${{ env.PRE_IMAGE }} ghcr.io/web3-plurality/plurality-market-mcp:latest
           echo "Tagged as:"
           echo "   - ${{ env.PROD_IMAGE }}"
-          echo "   - ghcr.io/web3-plurality/plurality-mcp-server:latest"
+          echo "   - ghcr.io/web3-plurality/plurality-market-mcp:latest"
 
       - name: Push production images
         run: |
           echo "Pushing production images..."
           docker push ${{ env.PROD_IMAGE }}
-          docker push ghcr.io/web3-plurality/plurality-mcp-server:latest
+          docker push ghcr.io/web3-plurality/plurality-market-mcp:latest
           echo "Production images pushed successfully!"
