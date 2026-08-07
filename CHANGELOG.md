@@ -1,3 +1,10 @@
+# 1.0.0 (2026-08-07)
+
+
+### Features
+
+* initial marketplace release ([02a43f8](https://github.com/Web3-Plurality/plurality-market-mcp/commit/02a43f87e1ecf8157ac7615df266ba2601fdc086))
+
 # [1.4.0](https://github.com/Web3-Plurality/plurality-mcp-server/compare/v1.3.1...v1.4.0) (2026-04-30)
 
 
