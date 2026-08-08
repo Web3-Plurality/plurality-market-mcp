@@ -1,0 +1,30 @@
+# Local virtualenv — never needed in the image (deps come from uv.lock)
+.venv/
+
+# Git metadata
+.git/
+.gitignore
+.gitattributes
+
+# Secrets / local env
+.env
+.env.*
+!.env.example
+
+# Python caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Editor / OS cruft
+.vscode/
+.idea/
+.DS_Store
+
+# Docs/CI not needed at build time
+.github/
+oasis-deployment/
+CHANGELOG.md
