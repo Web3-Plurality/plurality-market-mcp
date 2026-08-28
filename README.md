@@ -2,7 +2,7 @@
 
 A [Model Context Protocol](https://modelcontextprotocol.io/) server for the **Plurality Market stack** (Studio + C2C Marketplace + Talk to Memory). Gives any MCP-compatible client — the in-browser Talk to Memory agent, Claude Code, Cursor — read and write access to a user's memory buckets.
 
-> This is the **market stack** MCP, separate from the production `plurality-mcp-server`. Different ports, different DB, no shared identity. See [project memory](../) for the split rationale.
+> This is the **market stack** MCP server, deliberately separate from Plurality's production MCP server: different ports, different database, no shared identity.
 
 ## Authentication
 

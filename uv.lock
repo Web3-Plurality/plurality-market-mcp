@@ -319,8 +319,8 @@ wheels = [
 ]
 
 [[package]]
-name = "plurality-mcp-server"
-version = "1.0.0"
+name = "plurality-market-mcp"
+version = "1.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },

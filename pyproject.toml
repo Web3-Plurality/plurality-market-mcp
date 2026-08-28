@@ -1,8 +1,9 @@
 [project]
-name = "plurality-mcp-server"
-version = "1.0.0"
-description = "Plurality MCP Server — open-source, zero-secret memory search for AI clients"
+name = "plurality-market-mcp"
+version = "1.1.0"
+description = "MCP server for the Plurality Market stack — PAT-authenticated memory access for AI clients"
 readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.11"
 dependencies = [
     "mcp>=1.26.0",

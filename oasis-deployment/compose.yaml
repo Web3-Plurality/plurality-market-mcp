@@ -2,8 +2,8 @@ services:
   #######
   # MCP Server
   #######
-  plurality-mcp-server-dev:
-    container_name: plurality-mcp-server-dev
+  plurality-market-mcp-dev:
+    container_name: plurality-market-mcp-dev
     image: ghcr.io/web3-plurality/plurality-market-mcp-pre:latest
     environment:
       HYDRA_ISSUER: https://${PLURALITY_DOMAIN}
