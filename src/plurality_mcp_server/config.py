@@ -10,7 +10,7 @@ BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://localhost:5001")
 
 # ── Dev-only CORS ──
 # When set to a non-empty origin (e.g. http://localhost:3001), the MCP server
-# answers preflight + adds CORS headers in-process. Leave EMPTY in prod —
+# answers preflight + adds CORS headers in-process. Leave EMPTY in prod:
 # Traefik fronts the MCP and adds CORS headers there. Both layers enabling
 # CORS produces duplicate headers that browsers reject.
 MCP_DEV_CORS_ORIGIN = os.getenv("MCP_DEV_CORS_ORIGIN", "")
@@ -24,3 +24,21 @@ http_client = httpx.AsyncClient(timeout=30.0, limits=httpx.Limits(max_connection
 # resolves bucket access from the token's owner wallet (via NFT ownership),
 # so tools don't need a separate identity context.
 current_token: contextvars.ContextVar[str] = contextvars.ContextVar('auth_token', default='')
+
+# ── Server instructions ──
+# Sent to every MCP client in the initialize handshake (FastMCP `instructions`).
+# This is the one place that tells an agent how the Skills model works, so
+# tool docstrings can stay short.
+SERVER_INSTRUCTIONS = """Plurality Skills Marketplace MCP server.
+
+Every memory bucket you can see here is a Skill: instructions (a markdown playbook written by the bucket creator) plus the bucket's memory (files, notes and saved chats). You can use a Skill if the authenticated wallet created it or holds its NFT.
+
+How to use a Skill:
+1. Call get_user_memory_buckets to see the available Skills and their ids.
+2. Before answering anything from a bucket, call get_bucket_skill(profile_id) and follow the instructions it returns. They take priority over your default behaviour for that task.
+3. For supporting knowledge use search_memory and read_context scoped to that bucket (pass profile_ids=["<profile_id>"] to search_memory).
+4. A bucket without a custom skill returns the default knowledge assistant: answer only from the bucket's memory and cite the item each answer comes from.
+
+The use_skill prompt does steps 1 and 2 in one go when the user names a Skill.
+
+Reply in plain conversational text unless the Skill's instructions say otherwise."""
