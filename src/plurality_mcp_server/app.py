@@ -1,24 +1,29 @@
 from mcp.server.fastmcp import FastMCP
 from plurality_mcp_server.auth import PATAuthMiddleware
-from plurality_mcp_server.config import MCP_DEV_CORS_ORIGIN
+from plurality_mcp_server.config import MCP_DEV_CORS_ORIGIN, SERVER_INSTRUCTIONS
 from plurality_mcp_server.tools import register_tools
+from plurality_mcp_server.prompts import register_prompts
 
 # ── MCP app ──
 # host="0.0.0.0" for container networking; transport security is disabled
 # because the PAT auth middleware is the real security gate.
+# `instructions` reaches the client in the initialize response and explains
+# the Skills model (see config.SERVER_INSTRUCTIONS).
 mcp_app = FastMCP(
     name="mcp",
+    instructions=SERVER_INSTRUCTIONS,
     stateless_http=True,
     json_response=True,
     host="0.0.0.0",
     port=5051,
 )
 register_tools(mcp_app)
+register_prompts(mcp_app)
 
 # ── ASGI app (Starlette under the hood) ──
 mcp_server = mcp_app.streamable_http_app()
 
-# ── Middleware (pure ASGI — no BaseHTTPMiddleware) ──
+# ── Middleware (pure ASGI, no BaseHTTPMiddleware) ──
 # PAT auth middleware forwards Authorization: Bearer plur_pat_... to the
 # backend for verification, then forwards the request with user_id/token
 # stamped into per-request contextvars for the tool handlers.
@@ -26,13 +31,13 @@ mcp_server = PATAuthMiddleware(mcp_server)
 
 
 # ── Dev-only CORS ──
-# Production: Traefik fronts the MCP and adds CORS headers — leave
+# Production: Traefik fronts the MCP and adds CORS headers. Leave
 # MCP_DEV_CORS_ORIGIN unset and this layer is a no-op.
 # Local dev (no Traefik): set MCP_DEV_CORS_ORIGIN=http://localhost:3001 (or
 # whatever the marketplace UI's origin is) and this middleware:
 #   - answers OPTIONS preflights with the right headers (status 204)
 #   - injects Access-Control-Allow-* headers on every response
-# Pure ASGI — no Starlette BaseHTTPMiddleware (which would buffer SSE).
+# Pure ASGI, no Starlette BaseHTTPMiddleware (which would buffer SSE).
 class DevCorsMiddleware:
     def __init__(self, app, allow_origin: str):
         self.app = app
@@ -51,7 +56,7 @@ class DevCorsMiddleware:
 
         method = scope.get("method", "")
 
-        # Preflight short-circuit — answer ourselves, never hand to inner app.
+        # Preflight short-circuit: answer ourselves, never hand to inner app.
         if method == "OPTIONS":
             req_headers = b""
             for k, v in scope.get("headers", []):
@@ -69,7 +74,7 @@ class DevCorsMiddleware:
             await send({"type": "http.response.body", "body": b""})
             return
 
-        # Non-preflight — inject CORS headers into the inner app's response.
+        # Non-preflight: inject CORS headers into the inner app's response.
         async def _send_wrapper(message):
             if message.get("type") == "http.response.start":
                 headers = list(message.get("headers", []))
