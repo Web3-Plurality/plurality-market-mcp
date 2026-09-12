@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/Web3-Plurality/plurality-market-mcp/compare/v1.1.1...v1.2.0) (2026-09-12)
+
+
+### Features
+
+* **mcp:** add skills model, get_bucket_skill tool and use_skill prompt ([fefc833](https://github.com/Web3-Plurality/plurality-market-mcp/commit/fefc833a8aefadbcf5a4f95a8c2bb97720182127))
+
 ## [1.1.1](https://github.com/Web3-Plurality/plurality-market-mcp/compare/v1.1.0...v1.1.1) (2026-08-30)
 
 
