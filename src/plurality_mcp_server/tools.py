@@ -86,17 +86,16 @@ def register_tools(mcp_app):
     @mcp_app.tool()
     async def get_user_memory_buckets() -> str:
         """
-        List all Skills (memory buckets) the authenticated user can use.
+        List all memory buckets the authenticated user can use.
 
-        Each Skill is a memory bucket: a themed collection of documents, notes
+        Each memory bucket is a themed collection of documents, notes
         and files, plus optional instructions written by its creator. Returns
         bucket IDs, names, item counts and whether a custom skill is attached.
-        Use this first to discover the available Skills, then call
+        Use this first to discover the available buckets, then call
         get_bucket_skill(profile_id) before answering from one of them.
 
-        Returns both owned buckets and buckets shared with the user.
-        Each bucket has a `role` ('owner', 'editor', or 'viewer') and
-        shared buckets include `sharedBy` information.
+        Access is ownership based: buckets this wallet created plus minted
+        buckets whose NFT the wallet currently holds.
         """
         token = current_token.get()
         if not token:
@@ -108,43 +107,27 @@ def register_tools(mcp_app):
                 return err
 
             if not profiles:
-                return "No Skills (memory buckets) found. The user hasn't created any yet."
+                return "No memory buckets found. The user has not created any yet."
 
-            owned_lines = []
-            shared_lines = []
+            # Access is ownership based (creator or current NFT holder); the
+            # share/role model this loop once rendered no longer exists.
+            lines = []
             for p in profiles:
                 name = p.get("profileName", p.get("name", "Unnamed"))
                 pid = p.get("id", "unknown")
                 count = p.get("contextCount", p.get("context_count", 0))
                 desc = p.get("description", "")
-                role = p.get("role", "owner")
-                is_owner = p.get("isOwner", True)
 
                 line = f"- **{name}** (id: {pid}, {count} items)"
                 if p.get("hasSkill"):
                     line += f" Skill: {p.get('skillName') or 'Untitled skill'}"
                 else:
                     line += " (no custom skill; default knowledge assistant)"
-                if not is_owner:
-                    line += f" [role: {role}]"
-                    shared_by = p.get("sharedBy", {})
-                    shared_by_name = shared_by.get("name") or shared_by.get("email") or shared_by.get("wallet") or "unknown"
-                    line += f"\n  Shared by: {shared_by_name}"
                 if desc:
                     line += f"\n  {desc}"
+                lines.append(line)
 
-                if is_owner:
-                    owned_lines.append(line)
-                else:
-                    shared_lines.append(line)
-
-            parts = []
-            if owned_lines:
-                parts.append(f"**Your buckets ({len(owned_lines)}):**\n\n" + "\n".join(owned_lines))
-            if shared_lines:
-                parts.append(f"**Shared with you ({len(shared_lines)}):**\n\n" + "\n".join(shared_lines))
-
-            return f"Found {len(profiles)} Skill(s) (memory buckets):\n\n" + "\n\n".join(parts)
+            return f"Found {len(profiles)} memory bucket(s):\n\n" + "\n".join(lines)
 
         except Exception as e:
             return f"Error fetching memory buckets: {str(e)}"
@@ -201,7 +184,7 @@ def register_tools(mcp_app):
     @mcp_app.tool()
     async def list_items_in_memory_bucket(profile_id: str) -> str:
         """
-        List all stored items (documents, files, notes) inside a Skill (memory bucket).
+        List all stored items (documents, files, notes) inside a memory bucket.
 
         Returns item metadata including title, description, source type, file name,
         size, and chunk count, but not the actual content.
@@ -272,13 +255,13 @@ def register_tools(mcp_app):
         k: int = 5,
     ) -> str:
         """
-        Search the memory of the user's Skills using semantic vector similarity.
+        Search the memory of the user's buckets using semantic vector similarity.
 
         Finds relevant content even when the query doesn't exactly match stored text.
         Searches all Skills (memory buckets) by default, or specify bucket IDs to
         narrow scope. When you are using one Skill, always pass its id in
         profile_ids so answers stay inside that Skill's memory.
-        Searches across both owned and shared buckets automatically.
+        Searches across every bucket the wallet created or holds the NFT for automatically.
         Returns results grouped by memory bucket and context, with content previews
         and relevance scores.
         Use this to discover which contexts contain relevant information,
@@ -286,7 +269,7 @@ def register_tools(mcp_app):
 
         Args:
             query: The search query to find relevant memories.
-            profile_ids: Optional list of Skill (memory bucket) IDs to search within.
+            profile_ids: Optional list of memory bucket IDs to search within.
                          If not provided, searches across all buckets.
             k: Number of results to return (default: 5).
         """
@@ -359,7 +342,7 @@ def register_tools(mcp_app):
         limit: int = 0,
     ) -> str:
         """
-        Read the full content of one memory item (document, file, or note) inside a Skill.
+        Read the full content of one memory item (document, file, or note) inside a memory bucket.
 
         Returns the actual text content with pagination support for large documents.
         Use start_chunk and limit to read specific portions. Defaults to returning
@@ -427,13 +410,13 @@ def register_tools(mcp_app):
         source_platform: str = "unknown",
     ) -> str:
         """
-        Save text content into the memory of a specific Skill (memory bucket).
+        Save text content into the memory of a specific bucket.
 
         IMPORTANT: Before calling this tool:
         1. Call get_user_memory_buckets to list available buckets
         2. Ask the user which bucket to save to, or offer to create a new one
         3. If the user wants a new bucket, call create_memory_bucket first
-        Minted (immutable) Skills reject writes.
+        Minted (immutable) buckets reject writes.
 
         Args:
             profile_id: The ID of the Skill (memory bucket) to save to (required).
@@ -494,13 +477,13 @@ def register_tools(mcp_app):
         source_platform: str = "unknown",
     ) -> str:
         """
-        Save a conversation (chat history) into the memory of a specific Skill (memory bucket).
+        Save a conversation (chat history) into the memory of a specific bucket.
 
         IMPORTANT: Before calling this tool:
         1. Call get_user_memory_buckets to list available buckets
         2. Ask the user which bucket to save to, or offer to create a new one
         3. If the user wants a new bucket, call create_memory_bucket first
-        Minted (immutable) Skills reject writes.
+        Minted (immutable) buckets reject writes.
 
         Args:
             profile_id: The ID of the Skill (memory bucket) to save to (required).
@@ -561,7 +544,7 @@ def register_tools(mcp_app):
         bucket_name: str,
     ) -> str:
         """
-        Create a new Skill (memory bucket) for organizing saved content.
+        Create a new memory bucket for organizing saved content.
 
         Only use this when the user explicitly wants a new bucket.
         Always ask the user for confirmation before creating.
@@ -591,7 +574,7 @@ def register_tools(mcp_app):
             pid = data.get("id", "unknown")
             name = data.get("profileName", bucket_name)
 
-            return f"Skill (memory bucket) created successfully!\n\n- **Name:** {name}\n- **Bucket ID:** {pid}\n\nYou can now use this ID with save_memory or save_conversation. Custom skill instructions are added in the marketplace Studio."
+            return f"Memory bucket created successfully!\n\n- **Name:** {name}\n- **Bucket ID:** {pid}\n\nYou can now use this ID with save_memory or save_conversation. Custom skill instructions are added in the marketplace Studio."
 
         except Exception as e:
             return f"Error creating memory bucket: {str(e)}"

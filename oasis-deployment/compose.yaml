@@ -6,7 +6,6 @@ services:
     container_name: plurality-market-mcp-dev
     image: ghcr.io/web3-plurality/plurality-market-mcp-pre:latest
     environment:
-      HYDRA_ISSUER: https://${PLURALITY_DOMAIN}
       MCP_RESOURCE_URL: https://${PLURALITY_DOMAIN}
       BACKEND_API_URL: https://${PLURALITY_DOMAIN}/api
     restart: always
