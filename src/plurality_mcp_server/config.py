@@ -29,16 +29,16 @@ current_token: contextvars.ContextVar[str] = contextvars.ContextVar('auth_token'
 # Sent to every MCP client in the initialize handshake (FastMCP `instructions`).
 # This is the one place that tells an agent how the Skills model works, so
 # tool docstrings can stay short.
-SERVER_INSTRUCTIONS = """Plurality Skills Marketplace MCP server.
+SERVER_INSTRUCTIONS = """Plurality Memory Marketplace MCP server.
 
-Every memory bucket you can see here is a Skill: instructions (a markdown playbook written by the bucket creator) plus the bucket's memory (files, notes and saved chats). You can use a Skill if the authenticated wallet created it or holds its NFT.
+Every memory bucket here holds memory (files, notes and saved chats) and may come with a Skill: a markdown playbook written by the bucket creator that says how to use that memory. You can use a bucket if the authenticated wallet created it or holds its NFT.
 
-How to use a Skill:
-1. Call get_user_memory_buckets to see the available Skills and their ids.
+How to use a bucket:
+1. Call get_user_memory_buckets to see the available buckets and their ids.
 2. Before answering anything from a bucket, call get_bucket_skill(profile_id) and follow the instructions it returns. They take priority over your default behaviour for that task.
 3. For supporting knowledge use search_memory and read_context scoped to that bucket (pass profile_ids=["<profile_id>"] to search_memory).
 4. A bucket without a custom skill returns the default knowledge assistant: answer only from the bucket's memory and cite the item each answer comes from.
 
-The use_skill prompt does steps 1 and 2 in one go when the user names a Skill.
+The use_skill prompt does steps 1 and 2 in one go when the user names a bucket.
 
 Reply in plain conversational text unless the Skill's instructions say otherwise."""

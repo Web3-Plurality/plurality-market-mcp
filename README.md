@@ -1,6 +1,6 @@
 # Plurality Market MCP Server
 
-A [Model Context Protocol](https://modelcontextprotocol.io/) server for the **Plurality Skills Marketplace** (Studio + C2C Marketplace + Use a Skill). It gives any MCP-compatible client (the in-browser Use a Skill agent, Claude Code, Claude Desktop, Cursor) access to the Skills a wallet owns: the creator's instructions plus the memory behind them.
+A [Model Context Protocol](https://modelcontextprotocol.io/) server for the **Plurality Memory Marketplace** (Studio + C2C Marketplace + Talk to Memory). It gives any MCP-compatible client (the in-browser Talk to Memory agent, Claude Code, Claude Desktop, Cursor) access to the memory buckets a wallet owns: their memory plus the creator's optional Skill instructions.
 
 > This is the **market stack** MCP server, deliberately separate from Plurality's production MCP server: different ports, different database, no shared identity.
 
@@ -72,7 +72,7 @@ In production, Traefik fronts the MCP. In local dev, set `MCP_DEV_CORS_ORIGIN` s
 | `save_conversation` | Save a conversation (chat history) into a draft bucket's memory |
 | `create_memory_bucket` | Create a new bucket (starts with the default skill) |
 
-Tool names are stable; only their descriptions were updated for the Skills model.
+Tool names are stable across releases.
 
 ### `get_bucket_skill(profile_id)`
 
@@ -97,7 +97,7 @@ When the bucket has no custom skill the header is followed by `(Default skill: t
 
 | Prompt | Argument | Description |
 |---|---|---|
-| `use_skill` | `bucket` (id or name) | Load a Skill you own from the Plurality Skills Marketplace and follow its instructions |
+| `use_skill` | `bucket` (id or name) | Load a memory bucket's Skill and follow its instructions |
 
 In Claude Code the prompt shows up as a slash command: `/mcp__plurality__use_skill <bucket id or name>` (the middle part is whatever name you gave the server when adding it). It resolves the bucket by exact id first, then by case-insensitive name, and returns one user message:
 

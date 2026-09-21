@@ -29,7 +29,7 @@ def register_prompts(mcp_app):
 
     @mcp_app.prompt(
         name="use_skill",
-        description="Load a Skill you own from the Plurality Skills Marketplace and follow its instructions",
+        description="Load a memory bucket's Skill and follow its instructions",
     )
     async def use_skill(
         bucket: Annotated[str, Field(description="Skill (memory bucket) id or name")],
@@ -46,7 +46,7 @@ def register_prompts(mcp_app):
         try:
             wanted = (bucket or "").strip()
             if not wanted:
-                return "Error: Pass a Skill id or name as the bucket argument, for example /mcp__plurality__use_skill My cooking notes"
+                return "Error: Pass a bucket id or name as the bucket argument, for example /mcp__plurality__use_skill My cooking notes"
 
             profiles, err = await list_profiles(token)
             if err:
@@ -56,8 +56,8 @@ def register_prompts(mcp_app):
             if match is None:
                 if not profiles:
                     return (
-                        f'Error: No Skill matches "{wanted}" and this wallet does not own any Skills yet. '
-                        "Create one in the Plurality Skills Marketplace first."
+                        f'Error: No bucket matches "{wanted}" and this wallet does not own any memory buckets yet. '
+                        "Create one in the Plurality Memory Marketplace first."
                     )
                 available = "\n".join(
                     f"- {_profile_name(p)} (id: {p.get('id', 'unknown')})" for p in profiles

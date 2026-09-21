@@ -130,7 +130,7 @@ class PATAuthMiddleware:
         # the MCP server only needs the wallet — backend resolves bucket
         # access from it via NFT ownership.
         wallet_address = info.get("auth_address", "")
-        print(f"[AUTH] {method} {path} | wallet={wallet_address} | token=...{token[-8:]}", flush=True)
+        print(f"[AUTH] {method} {path} | wallet={wallet_address}", flush=True)
 
         # Per-request context for tool functions
         current_token.set(token)

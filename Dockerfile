@@ -34,7 +34,7 @@ EXPOSE 5051
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5051/mcp || exit 1
+    CMD curl -f http://localhost:5051/health || exit 1
 
 # Run the application
 CMD ["uv", "run", "uvicorn", "main:mcp_server", "--host", "0.0.0.0", "--port", "5051"]
