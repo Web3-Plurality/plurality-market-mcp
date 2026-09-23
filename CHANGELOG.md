@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/Web3-Plurality/plurality-market-mcp/compare/v1.2.0...v1.2.1) (2026-09-23)
+
+
+### Bug Fixes
+
+* **mcp:** rename "skills" to "memory buckets"; switch healthcheck and tighten logging ([c1ce03c](https://github.com/Web3-Plurality/plurality-market-mcp/commit/c1ce03c30896fb7f36ee80213ccae5c413f4e7ec))
+
 # [1.2.0](https://github.com/Web3-Plurality/plurality-market-mcp/compare/v1.1.1...v1.2.0) (2026-09-12)
 
 
